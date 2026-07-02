@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barbería Garage — Barbero</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #f0f0f0; min-height: 100vh; }
+    .app { max-width: 420px; margin: 0 auto; background: #111; min-height: 100vh; }
+
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+    /* PIN SCREEN */
+    .pin-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1.5rem; background: #0a0a0a; }
+    .pin-logo-wrap { text-align: center; margin-bottom: 2rem; }
+    .pin-scissors { display: none; }
+    .pin-logo { font-family: 'Great Vibes', cursive; font-weight: 400; font-size: 72px; color: #f0f0f0; letter-spacing: 0px; line-height: 1.15; white-space: nowrap; }
+    .pin-tagline { display: none; }
+    .pin-divider { width: 30px; height: 1px; background: #333; margin: 1.5rem auto; }
+    .pin-instruccion { font-size: 12px; color: #444; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px; text-transform: uppercase; }
+    .pin-dots { display: flex; gap: 16px; margin-bottom: 0.75rem; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #333; background: #0a0a0a; transition: all 0.15s; }
+    .pin-dot.filled { background: #f0f0f0; border-color: #f0f0f0; transform: scale(1.1); }
+    .pin-dot.error { background: #ef4444; border-color: #ef4444; }
+    .pin-error { font-size: 13px; color: #ef4444; margin-bottom: 1rem; min-height: 20px; text-align: center; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; max-width: 280px; }
+    .key { background: #1a1a1a; border: 1px solid #222; border-radius: 50%; width: 76px; height: 76px; font-size: 26px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #f0f0f0; transition: background 0.1s, transform 0.1s; }
+    .key:active { background: #2a2a2a; transform: scale(0.95); }
+    .key.del { font-size: 20px; background: none; border: none; color: #555; }
+    .key.del:active { background: #1a1a1a; }
+    .key.empty { background: none; border: none; cursor: default; }
+
+    /* BARBERO SCREEN */
+    .barbero-screen { display: none; }
+    .header { padding: 1rem 1rem 0.75rem; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; }
+    .header-left { display: flex; flex-direction: column; }
+    .header-title { font-size: 17px; font-weight: 700; color: #f0f0f0; }
+    .header-sub { font-size: 12px; color: #555; margin-top: 2px; }
+    .salir-btn { font-size: 12px; color: #555; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+
+    /* CONTADOR */
+    .contador-bar { background: #0d0d0d; border-bottom: 1px solid #1e1e1e; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .contador-label { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+    .contador-num { font-size: 36px; font-weight: 800; color: #f0f0f0; line-height: 1; }
+    .contador-sub { font-size: 11px; color: #444; margin-top: 2px; }
+
+    .section-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.75rem 1rem 0.3rem; }
+    .ticket-builder { padding: 0 1rem; }
+    .ticket-total { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .ticket-total-label { font-size: 13px; color: #555; }
+    .ticket-total-val { font-size: 24px; font-weight: 700; color: #f0f0f0; }
+    .ticket-items { margin-bottom: 0.75rem; }
+    .ticket-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #1e1e1e; font-size: 13px; color: #f0f0f0; }
+    .ticket-item:last-child { border-bottom: none; }
+    .ticket-item-right { display: flex; align-items: center; gap: 8px; }
+    .ticket-item-precio { font-weight: 600; }
+    .quitar-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
+    .quitar-btn:active { color: #ef4444; }
+    .servicios-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 0.5rem; }
+    .srv-btn { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 0.6rem 0.5rem; text-align: left; cursor: pointer; transition: background 0.1s; }
+    .srv-btn:active { background: #2a2a2a; }
+    .srv-nombre { font-size: 12px; font-weight: 500; color: #f0f0f0; line-height: 1.3; }
+    .srv-precio { font-size: 12px; color: #555; margin-top: 2px; }
+    .sep-paquetes { grid-column: 1/-1; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 0 2px; border-top: 1px solid #1e1e1e; margin-top: 4px; }
+    .monto-libre { display: flex; gap: 8px; align-items: center; margin: 0.5rem 0 0.75rem; }
+    .monto-libre input { flex: 1; padding: 0.6rem 0.75rem; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 8px; background: #1a1a1a; color: #f0f0f0; }
+    .monto-libre-btn { padding: 0.6rem 1rem; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; color: #888; }
+    .enviar-btn { width: 100%; padding: 0.9rem; background: #f0f0f0; color: #111; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 1.5rem; transition: opacity 0.15s; }
+    .enviar-btn:disabled { opacity: 0.15; cursor: not-allowed; }
+    .confirmacion { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center; min-height: 55vh; }
+    .check-circle { width: 72px; height: 72px; border-radius: 50%; background: #002d0d; border: 2px solid #22c55e; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 34px; }
+    .conf-titulo { font-size: 22px; font-weight: 700; margin-bottom: 0.5rem; color: #f0f0f0; }
+    .conf-sub { font-size: 14px; color: #555; margin-bottom: 0.5rem; }
+    .conf-contador { font-size: 13px; color: #22c55e; margin-bottom: 2rem; font-weight: 600; }
+    .nuevo-btn { padding: 0.85rem 2.5rem; background: #f0f0f0; color: #111; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #f0f0f0; color: #111; padding: 0.6rem 1.2rem; border-radius: 20px; font-size: 13px; z-index: 100; display: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- PIN -->
+  <div class="pin-screen" id="pin-screen">
+    <div class="pin-logo-wrap">
+      <div class="pin-logo">Barbería Garage</div>
+    </div>
+    <div class="pin-divider"></div>
+    <div class="pin-instruccion">Ingresa tu PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="keypad">
+      <button class="key" id="k1">1</button><button class="key" id="k2">2</button><button class="key" id="k3">3</button>
+      <button class="key" id="k4">4</button><button class="key" id="k5">5</button><button class="key" id="k6">6</button>
+      <button class="key" id="k7">7</button><button class="key" id="k8">8</button><button class="key" id="k9">9</button>
+      <div class="key empty"></div><button class="key" id="k0">0</button><button class="key del" id="kdel">⌫</button>
+    </div>
+  </div>
+
+  <!-- BARBERO -->
+  <div class="barbero-screen" id="barbero-screen">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-title" id="barbero-nombre">Barbero</div>
+        <div class="header-sub" id="fecha-hoy"></div>
+      </div>
+      <button class="salir-btn" id="salir-btn">Cerrar sesión</button>
+    </div>
+
+    <div class="contador-bar">
+      <div>
+        <div class="contador-label">Clientes hoy</div>
+        <div class="contador-sub" id="contador-sub">Cargando...</div>
+      </div>
+      <div class="contador-num" id="contador-num">0</div>
+    </div>
+
+    <div id="registro-view">
+      <div class="section-label">Ticket actual</div>
+      <div class="ticket-builder">
+        <div class="ticket-total">
+          <span class="ticket-total-label">Total a cobrar</span>
+          <span class="ticket-total-val" id="ticket-total">$0</span>
+        </div>
+        <div class="ticket-items" id="ticket-items"></div>
+        <div class="section-label" style="padding-left:0;padding-top:0.25rem;">Servicios</div>
+        <div class="servicios-grid" id="servicios-grid"></div>
+        <div class="section-label" style="padding-left:0;">Monto especial</div>
+        <div class="monto-libre">
+          <input type="number" id="monto-libre-input" placeholder="$ Ingresa monto" inputmode="numeric" />
+          <button class="monto-libre-btn" id="agregar-libre-btn">+ Agregar</button>
+        </div>
+        <button class="enviar-btn" id="enviar-btn" disabled>Enviar ticket</button>
+      </div>
+    </div>
+
+    <div class="confirmacion" id="confirmacion-view">
+      <div class="check-circle">✓</div>
+      <div class="conf-titulo">¡Ticket enviado!</div>
+      <div class="conf-sub" id="conf-detalle">El cliente puede pasar a pagar.</div>
+      <div class="conf-contador" id="conf-contador"></div>
+      <button class="nuevo-btn" id="nuevo-btn">Nuevo cliente</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBUFIU4IHr1MSdLwUFJGCY2VpL-R92KTIQ",
+  authDomain: "caja-barberia-garage.firebaseapp.com",
+  projectId: "caja-barberia-garage",
+  storageBucket: "caja-barberia-garage.firebasestorage.app",
+  messagingSenderId: "546113775987",
+  appId: "1:546113775987:web:0928ffac15d0e80387fd06"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const SESION_DURACION = 5 * 60 * 60 * 1000; // 5 horas en ms
+
+const CATALOGOS = {
+  Edson: {
+    servicios: [
+      {nombre:'Corte de cabello',precio:200},{nombre:'Arreglo de barba',precio:200},
+      {nombre:'Facial exfoliante',precio:80},{nombre:'Carbón activado',precio:70},
+      {nombre:'Limpieza profunda',precio:150},{nombre:'Limpieza de cejas',precio:60},
+      {nombre:'Limpieza oídos',precio:130},{nombre:'Pigmentado barba',precio:150,libre:true},
+      {nombre:'Diseño grecas',precio:150,libre:true}
+    ],
+    paquetes: [
+      {nombre:'Barbón',precio:330},{nombre:'Plus+',precio:330},{nombre:'Papi Chulo',precio:410},
+      {nombre:'VIP',precio:370},{nombre:'Patrón',precio:470},{nombre:'Rey',precio:700}
+    ]
+  },
+  regular: {
+    servicios: [
+      {nombre:'Corte de cabello',precio:150},{nombre:'Arreglo de barba',precio:150},
+      {nombre:'Retoque contorno',precio:90},{nombre:'Facial exfoliante',precio:70},
+      {nombre:'Carbón activado',precio:60},{nombre:'Limpieza profunda',precio:120},
+      {nombre:'Limpieza de cejas',precio:50},{nombre:'Limpieza oídos',precio:100},
+      {nombre:'Pigmentado barba',precio:90,libre:true},{nombre:'Diseño grecas',precio:30,libre:true}
+    ],
+    paquetes: [
+      {nombre:'Barbón',precio:250},{nombre:'Plus+',precio:250},{nombre:'Papi Chulo',precio:330},
+      {nombre:'VIP',precio:300},{nombre:'Patrón',precio:370},{nombre:'Rey',precio:570}
+    ]
+  }
+};
+
+const DIAS_SEM=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const DIAS_N=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+let pinesDB={}, pinActual='', barberoActual='', itemsTicket=[];
+let contadorHoy=0, unsubContador=null;
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString('es-MX'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
+
+function getWeekPrefix(){
+  const hoy=new Date(); const idx=[6,0,1,2,3,4,5][hoy.getDay()];
+  const l=new Date(hoy); l.setDate(hoy.getDate()-idx);
+  return `${l.getFullYear()}-${String(l.getMonth()+1).padStart(2,'0')}-${String(l.getDate()).padStart(2,'0')}`;
+}
+function getDia(){ return DIAS_SEM[[6,0,1,2,3,4,5][new Date().getDay()]]; }
+
+// SESION PERSISTENTE
+function guardarSesion(nombre){
+  localStorage.setItem('bg_barbero', nombre);
+  localStorage.setItem('bg_sesion_ts', Date.now());
+}
+function limpiarSesion(){
+  localStorage.removeItem('bg_barbero');
+  localStorage.removeItem('bg_sesion_ts');
+}
+function verificarSesionGuardada(){
+  const nombre = localStorage.getItem('bg_barbero');
+  const ts = parseInt(localStorage.getItem('bg_sesion_ts')||'0');
+  if(nombre && (Date.now()-ts)<SESION_DURACION){ return nombre; }
+  limpiarSesion(); return null;
+}
+
+async function cargarPines(){
+  const snap=await getDocs(collection(db,'barberos'));
+  pinesDB={};
+  snap.docs.forEach(d=>{ const b=d.data(); if(b.activo&&b.pin) pinesDB[b.pin]=b.nombre; });
+}
+
+function actualizarDots(error=false){
+  for(let i=0;i<4;i++){ const d=document.getElementById('d'+i); d.className='pin-dot'; if(error) d.classList.add('error'); else if(i<pinActual.length) d.classList.add('filled'); }
+}
+
+function presionarTecla(num){
+  if(pinActual.length>=4) return;
+  pinActual+=num; actualizarDots();
+  if(pinActual.length===4){
+    setTimeout(async()=>{
+      await cargarPines();
+      if(pinesDB[pinActual]){ barberoActual=pinesDB[pinActual]; guardarSesion(barberoActual); entrarBarbero(); }
+      else{ document.getElementById('pin-error').textContent='PIN incorrecto, intenta de nuevo'; actualizarDots(true); setTimeout(()=>{ pinActual=''; actualizarDots(); document.getElementById('pin-error').textContent=''; },1000); }
+    },200);
+  }
+}
+
+['1','2','3','4','5','6','7','8','9','0'].forEach(n=>{ document.getElementById('k'+n).onclick=()=>presionarTecla(n); });
+document.getElementById('kdel').onclick=()=>{ pinActual=pinActual.slice(0,-1); document.getElementById('pin-error').textContent=''; actualizarDots(); };
+
+function escucharContador(){
+  if(unsubContador) unsubContador();
+  const semana=getWeekPrefix(); const dia=getDia();
+  // Escuchar tickets cobrados + pendientes del día
+  unsubContador = onSnapshot(
+    query(collection(db,'tickets'),where('semana','==',semana),where('dia','==',dia),where('barbero','==',barberoActual)),
+    snap=>{ contadorHoy=snap.size; actualizarContador(); }
+  );
+}
+
+function actualizarContador(){
+  document.getElementById('contador-num').textContent=contadorHoy;
+  document.getElementById('contador-sub').textContent=contadorHoy===0?'Aún sin clientes':contadorHoy===1?'1 cliente atendido':`${contadorHoy} clientes atendidos`;
+}
+
+function entrarBarbero(){
+  document.getElementById('pin-screen').style.display='none';
+  document.getElementById('barbero-screen').style.display='block';
+  document.getElementById('barbero-nombre').textContent=barberoActual;
+  const hoy=new Date();
+  document.getElementById('fecha-hoy').textContent=`${DIAS_N[hoy.getDay()]}, ${hoy.getDate()} de ${MESES[hoy.getMonth()]}`;
+  cargarCatalogo();
+  nuevoTicket();
+  escucharContador();
+}
+
+document.getElementById('salir-btn').onclick=()=>{
+  limpiarSesion();
+  if(unsubContador) unsubContador();
+  pinActual=''; barberoActual=''; contadorHoy=0; actualizarDots();
+  document.getElementById('pin-screen').style.display='flex';
+  document.getElementById('barbero-screen').style.display='none';
+  document.getElementById('registro-view').style.display='block';
+  document.getElementById('confirmacion-view').style.display='none';
+};
+
+function cargarCatalogo(){
+  const cat=barberoActual==='Edson'?CATALOGOS.Edson:CATALOGOS.regular;
+  const grid=document.getElementById('servicios-grid'); grid.innerHTML='';
+  cat.servicios.forEach(s=>{ const btn=document.createElement('button'); btn.className='srv-btn'; btn.innerHTML=`<div class="srv-nombre">${s.nombre}</div><div class="srv-precio">${s.libre?'desde ':''}${fmt(s.precio)}</div>`; btn.onclick=()=>{ itemsTicket.push({nombre:s.nombre,precio:s.precio}); renderTicket(); }; grid.appendChild(btn); });
+  const sep=document.createElement('div'); sep.className='sep-paquetes'; sep.textContent='Paquetes'; grid.appendChild(sep);
+  cat.paquetes.forEach(s=>{ const btn=document.createElement('button'); btn.className='srv-btn'; btn.innerHTML=`<div class="srv-nombre">Paq. ${s.nombre}</div><div class="srv-precio">${fmt(s.precio)}</div>`; btn.onclick=()=>{ itemsTicket.push({nombre:'Paq. '+s.nombre,precio:s.precio}); renderTicket(); }; grid.appendChild(btn); });
+}
+
+document.getElementById('agregar-libre-btn').onclick=()=>{
+  const val=parseInt(document.getElementById('monto-libre-input').value);
+  if(!val||val<=0) return;
+  itemsTicket.push({nombre:'Monto especial',precio:val});
+  document.getElementById('monto-libre-input').value='';
+  renderTicket();
+};
+
+function renderTicket(){
+  const lista=document.getElementById('ticket-items'); lista.innerHTML='';
+  itemsTicket.forEach((item,i)=>{ const div=document.createElement('div'); div.className='ticket-item'; div.innerHTML=`<span>${item.nombre}</span><div class="ticket-item-right"><span class="ticket-item-precio">${fmt(item.precio)}</span><button class="quitar-btn" data-i="${i}">✕</button></div>`; lista.appendChild(div); });
+  lista.querySelectorAll('.quitar-btn').forEach(btn=>{ btn.onclick=()=>{ itemsTicket.splice(parseInt(btn.dataset.i),1); renderTicket(); }; });
+  const total=itemsTicket.reduce((a,b)=>a+b.precio,0);
+  document.getElementById('ticket-total').textContent=fmt(total);
+  document.getElementById('enviar-btn').disabled=total===0;
+}
+
+let enviando=false;
+document.getElementById('enviar-btn').onclick=async()=>{
+  if(enviando) return;
+  const total=itemsTicket.reduce((a,b)=>a+b.precio,0); if(!total) return;
+  enviando=true;
+  const btn=document.getElementById('enviar-btn'); btn.disabled=true; btn.textContent='Enviando...';
+  try{
+    await addDoc(collection(db,'pendientes'),{
+      barbero:barberoActual, monto:total,
+      servicios:itemsTicket.map(i=>i.nombre),
+      dia:getDia(), semana:getWeekPrefix(), ts:Date.now()
+    });
+    document.getElementById('conf-detalle').textContent=`${barberoActual} · ${itemsTicket.length} servicio${itemsTicket.length!==1?'s':''} · ${fmt(total)}`;
+    document.getElementById('conf-contador').textContent=`Cliente ${contadorHoy+1} del día en camino a caja`;
+    document.getElementById('registro-view').style.display='none';
+    document.getElementById('confirmacion-view').style.display='flex';
+    enviando=false;
+  }catch(e){ showToast('Error al enviar, intenta de nuevo'); btn.disabled=false; btn.textContent='Enviar ticket'; enviando=false; }
+};
+
+function nuevoTicket(){
+  enviando=false;
+  itemsTicket=[];
+  document.getElementById('monto-libre-input').value='';
+  document.getElementById('registro-view').style.display='block';
+  document.getElementById('confirmacion-view').style.display='none';
+  renderTicket();
+}
+document.getElementById('nuevo-btn').onclick=nuevoTicket;
+
+// INICIO: verificar sesión guardada
+(async()=>{
+  await cargarPines();
+  const sesionGuardada = verificarSesionGuardada();
+  if(sesionGuardada){
+    barberoActual = sesionGuardada;
+    entrarBarbero();
+  }
+})();
+</script>
+</body>
+</html>
